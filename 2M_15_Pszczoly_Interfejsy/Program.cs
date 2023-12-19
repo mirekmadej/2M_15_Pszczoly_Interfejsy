@@ -18,6 +18,14 @@
         {
             this.nazwa = nazwa;
         }
+         public void sprawdzPatrol(int n, string komunikat)
+        {
+            if (pszczoly[n] is Ochroniarz)
+            {
+                Ochroniarz z = pszczoly[n] as Ochroniarz;
+                z.alarmuj(komunikat);
+            }
+        }
         public void pokazPszczoly()
         {
             Console.WriteLine("Lista pszczół:");
@@ -49,10 +57,23 @@
         }
         public void przydzielZadanie(int nr, string zadanie="")
         {
-            Pszczola p = pszczoly[nr];
-            if (p is IAtak && zadanie=="obrona")
+            string zagrozenie="";
+            foreach(var p1 in pszczoly)
             {
-                
+                if(p1 is Ochroniarz)
+                {
+                    Ochroniarz z = (Ochroniarz)(p1);
+                    if(z.zagrozenie.Length>0)
+                    {
+                        zagrozenie = z.zagrozenie;
+                        break;
+                    }
+                        
+                }
+            }
+            Pszczola p = pszczoly[nr];
+            if (p is IAtak && zagrozenie=="szerszeń")
+            {             
                 if(p is Zbieracz)
                 {
                     Zbieracz z = p as Zbieracz;
@@ -63,8 +84,17 @@
                     Ochroniarz z = p as Ochroniarz;
                     z.atakuj();
                 }
-                
-
+                Console.WriteLine("Zagrrożenie mineło");
+                 return;
+            }
+            if (p is IAtak && zagrozenie == "osa")
+            {
+                if (p is Ochroniarz)
+                {
+                    Ochroniarz z = p as Ochroniarz;
+                    z.atakuj();
+                }
+                Console.WriteLine("Zagrrożenie mineło");
                 return;
             }
             if (p is Zbieracz)
@@ -111,6 +141,7 @@
     class Ochroniarz : Robotnica
     {
         public override string nazwa { get; protected set; }
+        public string zagrozenie { get; private set; } = "";
         public Ochroniarz(string nazwa)
         {
             this.nazwa = nazwa;
@@ -124,9 +155,9 @@
         {
             Console.WriteLine($"{nazwa}: bronię ula");
         }
-        public void alarmuj()
+        public void alarmuj(string z)
         {
-            //Krolowa.alarmujUl(this, "osa");
+            zagrozenie = z;
         }
     }
 
@@ -147,11 +178,23 @@
             k.dodajPszczole(new Zbieracz("z7"));
 
             k.pokazPszczoly();
-            for (int i = 0; i < 10; i++) 
-                k.przydzielZadanie(i);
-            Console.WriteLine("najazd os na ul");
             for (int i = 0; i < 10; i++)
-                k.przydzielZadanie(i,"obrona");
+                k.przydzielZadanie(i);
+            
+            Console.WriteLine("najazd os na ul");
+            k.sprawdzPatrol(1, "osa");
+
+            for (int i = 0; i < 10; i++)
+                k.przydzielZadanie(i);
+
+            for (int i = 0; i < 10; i++)
+                k.przydzielZadanie(i);
+
+            Console.WriteLine("najazd szerszeni na ul");
+            k.sprawdzPatrol(1, "szerszeń");
+
+            for (int i = 0; i < 10; i++)
+                k.przydzielZadanie(i);
         }
     }
 }
